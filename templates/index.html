@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Deepfake Detection</title>
+    <style>
+        .career {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .career-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        #result {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="career">
+        <div class="career-form">
+            <h1>Audio Deepfake Detection</h1>
+            <form id="audioForm">
+                <label for="audioFile">Upload Audio File:</label><br>
+                <input type="file" id="audioFile" name="audioFile" accept="audio/*" required><br><br>
+                <button type="submit">Predict</button>
+            </form>
+    
+            <h2>Prediction Result: <span id="result"></span></h2>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('audioForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('audioFile');
+            formData.append('audioFile', fileInput.files[0]);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = data.result;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

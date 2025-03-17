@@ -617,10 +617,10 @@ body{
 
 .team .row .card{
     height: 35rem;
-    width: 25rem;
+    width: 20rem;
     background-color: #fff;
     text-align: center;
-    margin: 5rem 5rem;
+    margin: 3rem 3rem;
     position: relative;
     overflow: hidden;
     -webkit-box-reflect: below 5px linear-gradient(transparent 70%, #0004);
@@ -659,6 +659,16 @@ body{
 
 .team .row .card .info .icons a{
     margin-top: 4rem;
+    padding-top: 0 1rem;
+    font-size: 2rem;
+    color: #333;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.team .row .card .info .Guide-icons a{
+    margin-top: 2rem;
     padding-top: 0 1rem;
     font-size: 2rem;
     color: #333;
