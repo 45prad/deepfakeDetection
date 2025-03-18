@@ -49,7 +49,7 @@
     <div class="career">
         <div class="career-form">
             <h1>Image Deepfake Detection</h1>
-            <form id="imageForm" onsubmit="return false;" >
+            <form id="imageForm">
                 <label for="imageFile">Upload Image File:</label><br>
                 <input type="file" id="imageFile" name="imageFile" accept="image/*" required><br><br>
                 <button type="submit">Predict</button>
@@ -59,6 +59,49 @@
             <h2>Confidence: <span id="confidence"></span></h2>
         </div>
     </div>
+    
+    <script>
+    document.getElementById('imageForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+    
+        const fileInput = document.getElementById('imageFile');
+        const file = fileInput.files[0];
+    
+        if (!file) {
+            alert('Please select an image file.');
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append('file', file);
+    
+        // Sending request to Flask backend
+        fetch('http://127.0.0.1:5000/predict', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("API Response:", data);  
+            if (data.error) {
+                document.getElementById('result').innerText = 'Error: ' + data.error;
+                document.getElementById('confidence').innerText = '';
+            } else {
+                document.getElementById('result').innerText = data.prediction;
+                document.getElementById('confidence').innerText = `${data.confidence}%`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('result').innerText = 'Error: ' + error.message;
+        });
+    });
+    </script>
     
     <style>
         /* Container Styling */
@@ -130,44 +173,7 @@
         }
     </style>
     
-    <script>
-        document.getElementById('imageForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the form from submitting and refreshing the page
     
-            const fileInput = document.getElementById('imageFile');
-            const file = fileInput.files[0];
-    
-            if (!file) {
-                alert('Please select an image file.');
-                return;
-            }
-    
-            const formData = new FormData();
-            formData.append('file', file);
-    
-            console.log('Sending file to server...'); // Debugging log
-    
-            fetch('http://127.0.0.1:5000/predict', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("API Response:", data);  // Debugging log
-                document.getElementById('result').innerText = data.prediction || 'Error: No result';
-                document.getElementById('confidence').innerText = data.confidence ? `${data.confidence}%` : 'N/A';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('result').innerText = 'Error: ' + error.message;
-            });
-        });
-    </script>
 
       <div class="footer">
         <div class="footer-top">

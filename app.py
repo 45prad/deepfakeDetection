@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify , render_template
 from flask_cors import CORS
 import tensorflow as tf
 import numpy as np
@@ -29,42 +29,39 @@ def preprocess_audio(file_path):
     mfccs_scaled = np.expand_dims(mfccs_scaled, axis=1)  # Shape becomes (1, 1, 13)
 
     return mfccs_scaled
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
+@app.route('/predict', methods=['GET', 'POST'])
+def upload_file():
+    """Handle file uploads and return predictions."""
+    if request.method == 'POST':
         if 'file' not in request.files:
             return jsonify({'error': 'No file uploaded'}), 400
-
         file = request.files['file']
         if file.filename == '':
-            return jsonify({'error': 'No file selected'}), 400
+            return jsonify({'error': 'No selected file'}), 400
+        
+        try:
+            file_path = os.path.join('uploads', file.filename)
+            print(f"Saving file to: {file_path}")  # Log the file path
+            file.save(file_path)
 
-        file_path = os.path.join('uploads', file.filename)
-        print(f"Saving file to: {file_path}")  # Log the file path
-        file.save(file_path)
+            # Verify the file exists after saving
+            if not os.path.exists(file_path):
+                print(f"File not saved: {file_path}")
+                return jsonify({'error': 'File could not be saved'}), 500
 
-        # Verify the file exists after saving
-        if not os.path.exists(file_path):
-            print(f"File not saved: {file_path}")
-            return jsonify({'error': 'File could not be saved'}), 500
+            new_audio_features = preprocess_audio(file_path)
+            prediction = model.predict(new_audio_features)
+            result = "Bonafide" if prediction[0][0] > 0.5 else "Spoof"
 
-        new_audio_features = preprocess_audio(file_path)
-        prediction = model.predict(new_audio_features)
-        result = "Bonafide" if prediction[0][0] > 0.5 else "Spoof"
+            os.remove(file_path)  # Clean up after processing
 
-        os.remove(file_path)
+            app.logger.info(f"Prediction: {result}")  # Log the prediction result
+            return jsonify({'prediction': result})
+        except Exception as e:
+            app.logger.error(f"Error processing file: {e}")
+            return jsonify({'error': 'Failed to process file'}), 500
 
-        # Log the prediction result
-        print(f"Prediction: {result}")
-        return jsonify({'prediction': result})
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({'error': str(e)}), 500
-    
-@app.route('/test', methods=['GET'])
-def test():
-    return jsonify({'message': 'Server is running!'})
+    return render_template('index.html')  # Serve HTML file for upload form
 
 if __name__ == '__main__':
     # Create the uploads directory if it doesn't exist

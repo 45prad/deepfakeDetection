@@ -1,71 +1,58 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS  # Import CORS
 import tensorflow as tf
 import numpy as np
 from PIL import Image
-import io
-import os
-from tensorflow.keras.losses import Loss
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# Load the pre-trained model from the same directory
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "cnnImagedeepfakemodel.h5")
+# Load the trained model (without compiling to avoid optimizer issues)
+MODEL_PATH = 'cnnImagedeepfakemodel.h5'
+MODEL = tf.keras.models.load_model(MODEL_PATH, compile=False)
 
-try:
-    # Attempt to load the model
-    MODEL = tf.keras.models.load_model(MODEL_PATH)
+# Recompile the model manually
+MODEL.compile(
+    optimizer='adam',
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+    metrics=['accuracy']
+)
 
-    # Patch the loss function if necessary
-    if hasattr(MODEL, 'loss') and isinstance(MODEL.loss, Loss):
-        MODEL.loss.reduction = 'sum_over_batch_size'  # Set a valid reduction value
-
-    print("Model loaded successfully!")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    MODEL = None
-
+# Class labels
 CLASS_NAMES = ["fake", "real"]
 
-def preprocess_image(image):
-    # Resize the image to the target size expected by the model
-    image = image.resize((256, 256))
-    # Convert the image to a numpy array
-    image = tf.keras.preprocessing.image.img_to_array(image)
-    # Expand dimensions to match the model's input shape
-    image = np.expand_dims(image, axis=0)
-    return image
+def predict(image):
+    """Preprocess the image and make a prediction."""
+    image = image.resize((256, 256))  # Resize to match model input size
+    img_array = tf.keras.preprocessing.image.img_to_array(image)
+    img_array = np.expand_dims(img_array, axis=0)  # Expand dimensions for batch input
+    img_array /= 255.0  # Normalize to match model training
+    
+    predictions = MODEL.predict(img_array)
+    predicted_class = CLASS_NAMES[np.argmax(predictions[0])]
+    confidence = round(100 * np.max(predictions[0]), 2)
+    
+    return predicted_class, confidence
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    if MODEL is None:
-        return jsonify({'error': 'Model failed to load. Please check the logs.'}), 500
-
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-
-    try:
-        # Read the image file
-        image = Image.open(io.BytesIO(file.read()))
-        # Preprocess the image
-        processed_image = preprocess_image(image)
-        # Make a prediction
-        prediction = MODEL.predict(processed_image)
-        predicted_class = CLASS_NAMES[np.argmax(prediction[0])]
-        confidence = round(100 * (np.max(prediction[0])), 2)
-
-        # Return the prediction and confidence
-        return jsonify({
-            'prediction': predicted_class,
-            'confidence': confidence
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+@app.route('/predict', methods=['GET', 'POST'])
+def upload_file():
+    """Handle file uploads and return predictions."""
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+        
+        try:
+            image = Image.open(file).convert('RGB')  # Convert to RGB
+            predicted_class, confidence = predict(image)
+            return jsonify({'prediction': predicted_class, 'confidence': confidence})
+        except Exception as e:
+            app.logger.error(f"Error processing image: {e}")
+            return jsonify({'error': 'Failed to process image'}), 500
+    
+    return render_template('index.html')  # Serve HTML file for upload form
 
 if __name__ == '__main__':
     app.run(debug=True)
