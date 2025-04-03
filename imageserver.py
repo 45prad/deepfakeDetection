@@ -34,6 +34,10 @@ def predict(image):
     
     return predicted_class, confidence
 
+@app.route('/')
+def index():
+    return render_template('imagepred.html')
+
 @app.route('/predict', methods=['GET', 'POST'])
 def upload_file():
     """Handle file uploads and return predictions."""

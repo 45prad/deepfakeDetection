@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepFake Detection</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/careers.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="icon" href="./images/image.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link href="{{url_for('static', filename='lib/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='lib/ionicons/css/ionicons.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='lib/owlcarousel/assets/owl.carousel.min.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='lib/lightbox/css/lightbox.min.css')}}" rel="stylesheet">
+    <script src="./js/main.js"></script> 
+
+</head>
+<body>
+    <header class="header">
+        <a href="#" class="logo"><img src="./images/image.png" alt=""></a>
+        <div class="fas fa-bars"></div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="index.html#home">home</a></li>
+                <li><a href="index.html#about">about</a></li>
+                <li><a href="index.html#service">services</a></li>
+                <li><a href="index.html#portfolio">portfolio</a></li>
+                <li><a href="index.html#team">team</a></li>
+                <li><a href="careers.html">career</a></li>
+                <li><a href="index.html#contact">contact</a></li>
+                <li><a href="index.html#faq">FAQ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="home">
+        <h2>DeepFake Detection</h2>
+    </section>
+
+    <section id="career-heading" class="career-heading">
+        <h1 class="heading">Audio DeepFake Detection</h1>
+        <!-- <p>Job Opening in IT Company. Apply Now!</p> -->
+    </section>
+    
+    
+    <div class="career">
+        <div class="career-form">
+            
+                <h1>Audio Deepfake Detection</h1>
+                <p class="subtitle">Upload an audio file to detect AI-generated voices</p>
+            
+            
+           
+                <form id="audioForm">
+                    <div class="upload-section">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-placeholder" id="uploadPlaceholder">
+                                <i class="upload-icon">🎵</i>
+                                <p>Drag & drop your audio here or click to browse</p>
+                                <p class="small">Supports MP3, WAV (Max 10MB)</p>
+                            </div>
+                            <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+                        </div>
+                        
+                        <div class="audio-preview" id="audioPreview">
+                            <div class="audio-controls">
+                                <button type="button" class="play-btn" id="playBtn">▶</button>
+                                <div class="progress-container">
+                                    <div class="progress-bar" id="progressBar"></div>
+                                </div>
+                                <span class="time" id="currentTime">0:00</span>
+                            </div>
+                            <div class="audio-info">
+                                <span id="audioName"></span>
+                                <span id="audioDuration"></span>
+                            </div>
+                            <button type="button" class="clear-btn" id="clearBtn">×</button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                        <span class="btn-text">Analyze Audio</span>
+                        <span class="spinner hidden" id="spinner"></span>
+                    </button>
+                </form>
+    
+                <div class="results" id="results">
+                    <h2>Analysis Results</h2>
+                    <div class="result-item">
+                        <span class="result-label">Prediction:</span>
+                        <span class="result-value" id="result">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Confidence:</span>
+                        <span class="result-value" id="confidence">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Details:</span>
+                        <span class="result-value" id="details">-</span>
+                    </div>
+                </div>
+            
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('audioFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+        const audioPreview = document.getElementById('audioPreview');
+        const playBtn = document.getElementById('playBtn');
+        const progressBar = document.getElementById('progressBar');
+        const currentTime = document.getElementById('currentTime');
+        const audioName = document.getElementById('audioName');
+        const audioDuration = document.getElementById('audioDuration');
+        const clearBtn = document.getElementById('clearBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const spinner = document.getElementById('spinner');
+        const form = document.getElementById('audioForm');
+        const results = document.getElementById('results');
+        
+        let audioElement = new Audio();
+        let isPlaying = false;
+        
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+        
+        // Handle file selection via click
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Handle file selection
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            
+            if (file) {
+                // Check file type and size
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                
+               
+                
+                if (file.size > maxSize) {
+                    alert('File size exceeds 10MB limit. Please choose a smaller audio file.');
+                    return;
+                }
+                
+                // Preview audio
+                const fileURL = URL.createObjectURL(file);
+                audioElement.src = fileURL;
+                
+                audioElement.addEventListener('loadedmetadata', function() {
+                    audioName.textContent = file.name.length > 20 
+                        ? file.name.substring(0, 17) + '...' 
+                        : file.name;
+                    
+                    const duration = formatTime(audioElement.duration);
+                    audioDuration.textContent = duration;
+                    
+                    uploadPlaceholder.style.display = 'none';
+                    audioPreview.style.display = 'block';
+                    submitBtn.disabled = false;
+                });
+                
+                audioElement.addEventListener('timeupdate', updateProgress);
+                audioElement.addEventListener('ended', function() {
+                    playBtn.textContent = '▶';
+                    isPlaying = false;
+                });
+            }
+        }
+        
+        // Play/Pause button
+        playBtn.addEventListener('click', function() {
+            if (audioElement.src) {
+                if (isPlaying) {
+                    audioElement.pause();
+                    playBtn.textContent = '▶';
+                } else {
+                    audioElement.play();
+                    playBtn.textContent = '❚❚';
+                }
+                isPlaying = !isPlaying;
+            }
+        });
+        
+        // Progress bar click
+        progressBar.parentElement.addEventListener('click', function(e) {
+            if (!audioElement.src) return;
+            
+            const percent = e.offsetX / this.offsetWidth;
+            audioElement.currentTime = percent * audioElement.duration;
+            updateProgress();
+        });
+        
+        function updateProgress() {
+            const percent = (audioElement.currentTime / audioElement.duration) * 100;
+            progressBar.style.width = percent + '%';
+            currentTime.textContent = formatTime(audioElement.currentTime);
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // Clear button
+        clearBtn.addEventListener('click', function() {
+            audioElement.pause();
+            audioElement.src = '';
+            fileInput.value = '';
+            uploadPlaceholder.style.display = 'flex';
+            audioPreview.style.display = 'none';
+            submitBtn.disabled = true;
+            resetResults();
+        });
+        
+        // Form submission
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            spinner.classList.remove('hidden');
+            document.querySelector('.btn-text').textContent = 'Analyzing...';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // Sending request to Flask backend
+            fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("API Response:", data);  
+                if (data.error) {
+                    document.getElementById('result').innerText = 'Error';
+                    document.getElementById('confidence').innerText = '-';
+                    document.getElementById('details').innerText = data.error;
+                } else {
+                    document.getElementById('result').innerText = data.prediction;
+                    
+                    
+                    // Add appropriate class based on prediction
+                    const resultElement = document.getElementById('result');
+                    resultElement.className = 'result-value';
+                    resultElement.classList.add(data.prediction.toLowerCase());
+                }
+                
+                results.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerText = 'Error';
+                document.getElementById('confidence').innerText = '-';
+                document.getElementById('details').innerText = error.message;
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                spinner.classList.add('hidden');
+                document.querySelector('.btn-text').textContent = 'Analyze Audio';
+            });
+        });
+        
+        function resetResults() {
+            document.getElementById('result').innerText = '-';
+            document.getElementById('confidence').innerText = '-';
+            document.getElementById('details').innerText = '-';
+            document.getElementById('result').className = 'result-value';
+            results.style.display = 'none';
+        }
+    });
+    </script>
+    
+    <style>
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        /* Container Styling */
+        .career {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .career-form {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .career-form h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        
+        /* Upload Section */
+        .upload-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-area {
+            position: relative;
+            border: 2px dashed #bdc3c7;
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area:hover {
+            border-color: #9b59b6;
+        }
+        
+        .upload-area.dragover {
+            border-color: #9b59b6;
+            background-color: rgba(155, 89, 182, 0.05);
+        }
+        
+        .upload-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+        }
+        
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-placeholder p {
+            margin-bottom: 0.5rem;
+        }
+        
+        .small {
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
+        
+        #audioFile {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        /* Audio Preview */
+        .audio-preview {
+            display: none;
+            position: relative;
+            border-radius: 12px;
+            background: #f8f9fa;
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .play-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .play-btn:hover {
+            background: #8e44ad;
+            transform: scale(1.05);
+        }
+        
+        .progress-container {
+            flex-grow: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #9b59b6;
+            border-radius: 3px;
+            width: 0%;
+        }
+        
+        .time {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            min-width: 40px;
+            text-align: right;
+        }
+        
+        .audio-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        
+        .clear-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .clear-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+        
+        /* Button Styles */
+        .submit-btn {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .submit-btn:hover {
+            background-color: #8e44ad;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Spinner */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Results Section */
+        .results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .results h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+        
+        .result-value {
+            font-weight: 700;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        
+        .result-value.real {
+            color: #27ae60;
+        }
+        
+        .result-value.fake {
+            color: #e74c3c;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .app-container {
+                padding: 1.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .upload-area {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+    
+    
+
+      <div class="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 footer-links">
+                        <h4>About Us</h4>
+                        <ul>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#home">Home</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#about">About us</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#service">Our services</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#home">Terms & condition</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#home">Privacy policy</a></li>
+                        </ul>
+                    </div>
+  
+                    <div class="col-lg-3 col-md-6 footer-links">
+                        <h4>Useful Links</h4>
+                        <ul>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#portfolio">Portfolio</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#team">Team</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="careers.html">Career</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#contact">Contact</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#faq">FAQ</a></li>
+                        </ul>
+                    </div>
+  
+                    <div class="col-lg-3 col-md-6 footer-contact" style="font-size: 1.5rem;">
+                        <h4>Contact Us</h4>
+                        <p>
+                            1300  Center Avenue<br>
+                            Fresno, California<br>
+                            United States <br>
+                            <strong>Phone:</strong> +123-456-7890<br>
+                            <strong>Email:</strong> info@example.com<br>
+                        </p>
+  
+                        <div class="social-links">
+                            <a href="https://www.facebook.com/"><i class="ion-logo-facebook"></i></a>
+                            <a href="https://twitter.com/login?lang=en"><i class="ion-logo-twitter"></i></a>
+                            <a href="https://www.linkedin.com/"><i class="ion-logo-linkedin"></i></a>
+                            <a href="https://www.instagram.com/"><i class="ion-logo-instagram"></i></a>
+                            <a href="https://accounts.google.com/servicelogin/signinchooser?flowName=GlifWebSignIn&flowEntry=ServiceLogin"><i class="ion-logo-googleplus"></i></a>
+                        </div>
+  
+                    </div>
+  
+                    <div class="col-lg-3 col-md-6 footer-newsletter">
+                        <h4>Subscription</h4>
+                        <p>With Our Skills Put Together, You Get An Ensemble Capable Of Doing Anything And Everything Your Brand Needs. Subscribe Here To Get Our Latest Updates.</p>
+                        <form action="" method="post">
+                            <input type="email" name="email"><input type="submit"  value="Subscribe">
+                        </form>
+                    </div>
+  
+                </div>
+            </div>
+        </div>
+  
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 copyright" style="color: #fff; font-size: 1.3rem;">
+                    Copyright &copy; 2021 IT Company Website. All Rights Reserved.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" class="back-to-top"><i class="ion-ios-arrow-up"></i></a>
+
+    <script src="lib/jquery/jquery.min.js"></script>
+    <script src="lib/jquery/jquery-migrate.min.js"></script>
+    <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/counterup/counterup.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/lightbox/js/lightbox.min.js"></script>
+
+</body>
+</html>

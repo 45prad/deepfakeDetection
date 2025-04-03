@@ -20,6 +20,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+         .graph{
+            display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; 
+        width: 800px; /* Fixed width */
+        height: 800px; /* Fixed height */
+        margin: 10px auto; 
+    }
        
             .chart-container {
     width: 800px; /* Fixed width */
@@ -71,10 +79,8 @@
     <h1 class="heading">About Deepfake Detection</h1>
     <div class="row">
         <div class="content">
-            <h3>Leveraging LSTM for Deepfake Detection in Images, Audio, and Video</h3>
-            <p>Deepfake technology has rapidly evolved, making it challenging to distinguish between real and AI-generated content. 
-                Our approach utilizes <b>Long Short-Term Memory (LSTM) networks</b> to analyze temporal dependencies in media, 
-                ensuring accurate deepfake detection.</p>
+            <h3>Leveraging  Librose & LSTM for Deepfake Detection in Audio</h3>
+            <p>Our system examines voice patterns, speech synthesis, and frequency modulations to detect AI-generated speech using  Librosa for feature extraction and LSTM-based classification models.</p>
             <a href="#"><button class="btn">Read More</button></a>
         </div>
     </div>
@@ -265,9 +271,9 @@
 </div> -->
 
 <div class="communicate">
-    <h3>Want to predict whether the audio you just saw is real or fake?</h3>
+    <h3>Want to predict whether the audio you just heard is real or fake?</h3>
     <p>Use our AI-powered deepfake detection system to analyze and verify media authenticity in real-time. Stay informed and protect yourself from misinformation.</p>
-    <a href="audiopred.html"><button class="btn">Let's Predict</button></a>
+    <a href="http://127.0.0.1:5000/"><button class="btn">Let's Predict</button></a>
 </div>
 
 <!-- <div class="testimonials mt-100">
@@ -362,73 +368,71 @@
             <div class="testimonial-item row align-items-center">
                 <div class="testimonial-audio">
                     <audio controls>
-                        <source src="../IT-Company-Website/audios/audio1.aac" type="audio/mpeg">
+                        <source src="./audios/LA_T_6216316.flac" type="audio/flac">
                         Your browser does not support the audio element.
                     </audio>
                 </div>
                 <div class="testimonial-text">
                     <h3>Real</h3>
-                    <h4>Confidence</h4>
-                    <p>95.83%</p>
+                    
                 </div>
             </div>
             <div class="testimonial-item row align-items-center">
                 <div class="testimonial-audio">
                     <audio controls>
-                        <source src="../IT-Company-Website/audios/audio2.aac" type="audio/mpeg">
+                        <source src="./audios/audio2.aac" type="audio/aac">
                         Your browser does not support the audio element.
                     </audio>
                 </div>
                 <div class="testimonial-text">
                     <h3>Fake</h3>
-                    <h4>Confidence</h4>
-                    <p>100%</p>
+                   
                 </div>
             </div>
             <div class="testimonial-item row align-items-center">
                 <div class="testimonial-audio">
                     <audio controls>
-                        <source src="../IT-Company-Website/audios/audio3.aac" type="audio/mpeg">
+                        <source src="./audios/audio3.aac" type="audio/aac">
                         Your browser does not support the audio element.
                     </audio>
                 </div>
                 <div class="testimonial-text">
                     <h3>Fake</h3>
-                    <h4>Confidence</h4>
-                    <p>95.04%</p>
+                    
                 </div>
             </div>
             <div class="testimonial-item row align-items-center">
                 <div class="testimonial-audio">
                     <audio controls>
-                        <source src="../IT-Company-Website/audios/audio3.aac" type="audio/mpeg">
+                        <source src="./audios/audio3.aac" type="audio/aac">
                         Your browser does not support the audio element.
                     </audio>
                 </div>
                 <div class="testimonial-text">
                     <h3>Real</h3>
-                    <h4>Confidence</h4>
-                    <p>75.04%</p>
+                   
                 </div>
             </div>
             <div class="testimonial-item row align-items-center">
                 <div class="testimonial-audio">
                     <audio controls>
-                        <source src="../IT-Company-Website/audios/audio1.aac" type="audio/mpeg">
+                        <source src="./audios/audio1.aac" type="audio/aac">
                         Your browser does not support the audio element.
                     </audio>
                 </div>
                 <div class="testimonial-text">
                     <h3>Fake</h3>
-                    <h4>Confidence</h4>
-                    <p>99.04%</p>
+                   
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-
+<div class="graph">
+    <img src="./images/audiogarph.jpg" alt="Client Logo">
+    
+</div>
 <div class="chart-container">
     <canvas id="accuracyChart"></canvas>
 </div>
@@ -690,10 +694,10 @@
 
   <a href="#" class="back-to-top"><i class="ion-ios-arrow-up"></i></a>
   <script>
-    const trainAccuracy = [0.8890, 0.8990, 0.9004, 0.8965, 0.9072, 0.9110, 0.9076, 0.9134, 0.9083, 0.9115, 0.9151, 0.9151, 0.9161, 0.9181, 0.9165, 0.9122, 0.9165, 0.9189, 0.9211, 0.9220, 0.9215, 0.9187, 0.9249, 0.9214, 0.9226, 0.9229, 0.9223, 0.9273, 0.9268, 0.9242];
-    const valAccuracy = [0.8993, 0.9043, 0.9039, 0.9058, 0.9133, 0.9178, 0.9214, 0.9208, 0.9238, 0.9249, 0.9242, 0.9269, 0.9269, 0.9293, 0.9240, 0.9336, 0.9273, 0.9267, 0.9234, 0.9283, 0.9291, 0.9385, 0.9242, 0.9228, 0.9374, 0.9374, 0.9383, 0.9356, 0.9356, 0.9368];
-    const trainLoss = [0.3195, 0.2622, 0.2408, 0.2397, 0.2235, 0.2214, 0.2193, 0.2103, 0.2142, 0.2085, 0.2024, 0.1960, 0.2011, 0.1960, 0.1972, 0.1978, 0.1908, 0.1893, 0.1946, 0.1861, 0.1817, 0.1860, 0.1791, 0.1836, 0.1857, 0.1845, 0.1863, 0.1739, 0.1760, 0.1786];
-    const valLoss = [0.2399, 0.2216, 0.2123, 0.2127, 0.2002, 0.1992, 0.1840, 0.1930, 0.1782, 0.1840, 0.1766, 0.1782, 0.1721, 0.1722, 0.1779, 0.1613, 0.1659, 0.1685, 0.1710, 0.1624, 0.1627, 0.1543, 0.1687, 0.1728, 0.1531, 0.1557, 0.1518, 0.1564, 0.1523, 0.1554];
+  const trainAccuracy = [0.6141, 0.7784, 0.8327, 0.8360, 0.8577, 0.8655, 0.8728, 0.8828, 0.8890, 0.8798, 0.8829, 0.8841, 0.9087, 0.8901, 0.8950, 0.8996, 0.9000, 0.9062, 0.8961, 0.9061];
+const valAccuracy = [0.8368, 0.8544, 0.8734, 0.8994, 0.8889, 0.8994, 0.8849, 0.9179, 0.8999, 0.9119, 0.9164, 0.9179, 0.9264, 0.9214, 0.9234, 0.9209, 0.9259, 0.9279, 0.9259, 0.9314];
+const trainLoss = [0.6345, 0.4611, 0.3861, 0.3629, 0.3320, 0.3250, 0.3140, 0.3017, 0.2870, 0.2855, 0.2866, 0.2904, 0.2425, 0.2655, 0.2645, 0.2699, 0.2411, 0.2505, 0.2528, 0.2420];
+const valLoss = [0.4173, 0.3546, 0.3085, 0.2664, 0.2721, 0.2495, 0.2847, 0.2267, 0.2556, 0.2202, 0.2363, 0.2156, 0.2111, 0.2152, 0.2081, 0.2210, 0.2141, 0.2115, 0.2158, 0.1938];
 
     const epochs = trainAccuracy.map((_, index) => index + 1);
 

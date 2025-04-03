@@ -18,7 +18,25 @@
     <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
     <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+   
+    .chart-container {
+        width: 800px; /* Fixed width */
+        height: 400px; /* Fixed height */
+        margin: 20px auto; /* Center the container */
+    }
 
+    .graph{
+            display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; 
+        width: 800px; /* Fixed width */
+        height: 800px; /* Fixed height */
+        margin: 10px auto; 
+    }
+   
+    
+</style>
     <script src="./js/main.js"></script>
 </head>
 <body>
@@ -39,8 +57,8 @@
     </header>
 
   <section id="home" class="home">
-      <h1>DeepFake Detection  mZBxM</h1>
-      <h2>Audio Image Video</h2>
+      <h1>DeepFake Detection</h1>
+      <h2>Video</h2>
     <div class="wave wave1"></div>
     <div class="wave wave2"></div>
     <div class="wave wave3"></div>
@@ -59,12 +77,12 @@
   </section> -->
 
   <section id="about" class="about">
-    <h1 class="heading">About Deepfake Detection</h1>
+    <h1 class="heading">About Video Deepfake Detection</h1>
     <div class="row">
         <div class="content">
-            <h3>Leveraging LSTM for Deepfake Detection in Images, Audio, and Video</h3>
+            <h3>Leveraging  ResNet & LSTM for Deepfake Detection in Video</h3>
             <p>Deepfake technology has rapidly evolved, making it challenging to distinguish between real and AI-generated content. 
-                Our approach utilizes <b>Long Short-Term Memory (LSTM) networks</b> to analyze temporal dependencies in media, 
+                Our approach utilizes <b>Long Short-Term Memory (LSTM) networks & ResNet</b> to analyze temporal dependencies in media, 
                 ensuring accurate deepfake detection.</p>
             <!-- <p><b>Image Detection:</b> LSTM processes feature embeddings extracted from convolutional networks to identify manipulated patterns.</p>
             <p><b>Audio Detection:</b> LSTM analyzes spectrogram sequences to detect unnatural variations in speech and synthesized voices.</p>
@@ -106,7 +124,7 @@
 </div> -->
 
 
-<div class="pt-5 pb-5" style="background-color: #f2f2f2;">
+<!-- <div class="pt-5 pb-5" style="background-color: #f2f2f2;">
     <div class="container">
       <div class="row">
         <div class="section-head col-sm-12" id="service">
@@ -133,7 +151,7 @@
         </div>
       </div>
     </div>
-</div>
+</div> -->
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
@@ -163,7 +181,7 @@
     </div>
 </section> -->
 
-
+<!-- 
 <section class="counters">
     <div class="container">
         <div>
@@ -187,7 +205,7 @@
             <h3>Training Hours</h3>
         </div>
     </div>
-</section>
+</section> -->
 
 <!-- <div class="pt-5 pb-5">
     <div class="container">
@@ -225,7 +243,7 @@
 </div> -->
 
 
-<div class="pt-5 pb-5">
+<!-- <div class="pt-5 pb-5">
     <div class="container">
       <div class="row">
         <div class="section-head-1 col-sm-12" style="text-align: center;">
@@ -256,15 +274,15 @@
         </div>
       </div>
     </div>
-</div>
+</div> -->
 
 <div class="communicate">
-    <h3>Lorem ipsum dolor sit amet consectetur adipisicing elit.</h3>
-    <p>Lorem ipsum dolor sit amet.</p>
-    <a href="#contact"><button class="btn">Contact Now</button></a>
+    <h3>Want to predict whether the video you just saw is real or fake?</h3>
+    <p>Use our AI-powered deepfake detection system to analyze and verify media authenticity in real-time. Stay informed and protect yourself from misinformation.</p>
+    <a href=" http://127.0.0.1:5000"><button class="btn">Let's Predict</button></a>
 </div>
 
-<div class="testimonials mt-100">
+<!-- <div class="testimonials mt-100">
     <div class="container">
         <div class="section-header" style="text-align: center;">
             <h2 style="margin-top: -15rem;">Our Predictions</h2>
@@ -341,20 +359,22 @@
             </div>
         </div>
     </div>
+</div> -->
+
+
+
+    
+<div class="graph">
+    <img src="./images/videograph.jpg" alt="Client Logo">
+    
 </div>
 
-
-<div class="container">
-    <h2 class="text-center">Model Accuracy Comparison</h2>
-    
-    <h4>Training & Validation Accuracy per Epoch</h4>
-    <canvas id="accuracyChart"></canvas>
-
-    <h4>Final Training & Validation Accuracy per Model</h4>
-    <canvas id="finalAccuracyChart"></canvas>
-
-    <h4>CNNv2 Model Training & Validation Accuracy</h4>
-    <canvas id="cnnChart"></canvas>
+<div class="chart-container">
+   
+        <canvas id="accuracyChart"></canvas>
+</div>
+    <div class="chart-container">
+        <canvas id="lossChart"></canvas>
 </div>
 
 <!-- <div class="clients mt-100">
@@ -608,127 +628,98 @@
 
   <a href="#" class="back-to-top"><i class="ion-ios-arrow-up"></i></a>
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Data for EfficientNetB0
-        const epochsEffnet = [1, 2, 3, 4, 5, 6, 7];
-        const trainAccEffnet = [0.7397, 0.8041, 0.8199, 0.8269, 0.8325, 0.8438, 0.8523];
-        const valAccEffnet = [0.7975, 0.807, 0.7803, 0.8018, 0.8123, 0.7673, 0.7968];
-    
-        // Data for VGG16
-        const epochsVgg = [1, 2, 3, 4, 5, 6];
-        const trainAccVgg = [0.7466, 0.8414, 0.8825, 0.9122, 0.9316, 0.9466];
-        const valAccVgg = [0.8413, 0.8152, 0.8528, 0.8462, 0.829, 0.8545];
-    
-        // Data for New Model (CNNv2)
-        const epochsNew = Array.from({ length: 14 }, (_, i) => i + 1);
-        const trainAccNew = [0.6331, 0.859, 0.9003, 0.9194, 0.9303, 0.9371, 0.9435, 0.9491, 0.952, 0.9542, 0.9596, 0.9603, 0.9614, 0.964];
-        const valAccNew = [0.6125, 0.893, 0.908, 0.9373, 0.923, 0.9243, 0.92, 0.9423, 0.9423, 0.9385, 0.9523, 0.9498, 0.958, 0.9365];
-    
-        // Bar Chart Data for Final Accuracy Comparison
-        const models = ["EfficientNetB0", "VGG16", "CNNv2"];
-        const finalTrainAcc = [trainAccEffnet[6], trainAccVgg[5], trainAccNew[13]];
-        const finalValAcc = [valAccEffnet[6], valAccVgg[5], valAccNew[13]];
-    
-        // Line Chart - Training and Validation Accuracy per Epoch
-        new Chart(document.getElementById("accuracyChart"), {
-            type: "line",
-            data: {
-                labels: epochsNew,
-                datasets: [
-                    {
-                        label: "EfficientNetB0 - Train",
-                        data: trainAccEffnet,
-                        borderColor: "blue",
-                        backgroundColor: "blue",
-                        tension: 0.3,
-                    },
-                    {
-                        label: "EfficientNetB0 - Validation",
-                        data: valAccEffnet,
-                        borderColor: "lightblue",
-                        backgroundColor: "lightblue",
-                        tension: 0.3,
-                        borderDash: [5, 5],
-                    },
-                    {
-                        label: "VGG16 - Train",
-                        data: trainAccVgg,
-                        borderColor: "red",
-                        backgroundColor: "red",
-                        tension: 0.3,
-                    },
-                    {
-                        label: "VGG16 - Validation",
-                        data: valAccVgg,
-                        borderColor: "pink",
-                        backgroundColor: "pink",
-                        tension: 0.3,
-                        borderDash: [5, 5],
-                    },
-                    {
-                        label: "CNNv2 - Train",
-                        data: trainAccNew,
-                        borderColor: "green",
-                        backgroundColor: "green",
-                        tension: 0.3,
-                    },
-                    {
-                        label: "CNNv2 - Validation",
-                        data: valAccNew,
-                        borderColor: "lightgreen",
-                        backgroundColor: "lightgreen",
-                        tension: 0.3,
-                        borderDash: [5, 5],
-                    },
-                ],
+   // Extracted metrics
+const train_losses = [0.5663, 0.5184, 0.5162, 0.5218, 0.4812, 0.5057, 0.4650, 0.4545, 0.4582, 0.4821];
+const val_losses = [0.5760, 0.5921, 0.5753, 0.5628, 0.5582, 0.5471, 0.5644, 0.5482, 0.5331, 0.5694];
+const train_accuracies = [0.7171, 0.7557, 0.7529, 0.7507, 0.7707, 0.7629, 0.7864, 0.7907, 0.7921, 0.7707];
+const val_accuracies = [0.7267, 0.7333, 0.6900, 0.7367, 0.7433, 0.7133, 0.7400, 0.7300, 0.7667, 0.7333];
+
+// Number of epochs
+const epochs = Array.from({ length: train_losses.length }, (_, i) => i + 1);
+
+// Accuracy Chart
+const accuracyCtx = document.getElementById('accuracyChart').getContext('2d');
+const accuracyChart = new Chart(accuracyCtx, {
+    type: 'line',
+    data: {
+        labels: epochs,
+        datasets: [
+            {
+                label: 'Training Accuracy',
+                data: train_accuracies,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 2,
+                fill: true,
             },
-        });
-    
-        // Bar Chart - Final Training & Validation Accuracy
-        new Chart(document.getElementById("finalAccuracyChart"), {
-            type: "bar",
-            data: {
-                labels: models,
-                datasets: [
-                    {
-                        label: "Train Accuracy",
-                        data: finalTrainAcc,
-                        backgroundColor: "blue",
-                    },
-                    {
-                        label: "Validation Accuracy",
-                        data: finalValAcc,
-                        backgroundColor: "red",
-                    },
-                ],
+            {
+                label: 'Validation Accuracy',
+                data: val_accuracies,
+                borderColor: 'rgba(153, 102, 255, 1)',
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderWidth: 2,
+                fill: true,
+            }
+        ]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 1,
+            }
+        },
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Training and Validation Accuracy'
+            }
+        }
+    }
+});
+
+// Loss Chart
+const lossCtx = document.getElementById('lossChart').getContext('2d');
+const lossChart = new Chart(lossCtx, {
+    type: 'line',
+    data: {
+        labels: epochs,
+        datasets: [
+            {
+                label: 'Training Loss',
+                data: train_losses,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderWidth: 2,
+                fill: true,
             },
-        });
-    
-        // Line Chart - CNN Model Performance
-        new Chart(document.getElementById("cnnChart"), {
-            type: "line",
-            data: {
-                labels: epochsNew,
-                datasets: [
-                    {
-                        label: "Train Accuracy",
-                        data: trainAccNew,
-                        borderColor: "green",
-                        backgroundColor: "green",
-                        tension: 0.3,
-                    },
-                    {
-                        label: "Validation Accuracy",
-                        data: valAccNew,
-                        borderColor: "lightgreen",
-                        backgroundColor: "lightgreen",
-                        tension: 0.3,
-                        borderDash: [5, 5],
-                    },
-                ],
-            },
-        });
-    });
+            {
+                label: 'Validation Loss',
+                data: val_losses,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderWidth: 2,
+                fill: true,
+            }
+        ]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: Math.max(...train_losses, ...val_losses) + 0.1,
+            }
+        },
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Training and Validation Loss'
+            }
+        }
+    }
+});
     </script>
     
 </body>
