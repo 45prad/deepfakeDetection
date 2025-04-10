@@ -59,4 +59,4 @@ def upload_file():
     return render_template('index.html')  # Serve HTML file for upload form
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(debug=True)

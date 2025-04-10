@@ -50,6 +50,35 @@
             <h1>Image Deepfake Detection</h1>
             <p class="subtitle">Upload an image to check if it's authentic or AI-generated</p>
             
+            <!-- New Test Images Section -->
+            <div class="test-images-section">
+                <h3>Try out test data images</h3>
+                <div class="test-images-grid">
+                    <div class="test-image" draggable="true">
+                        <img src="../static/images/atharva.jpg" alt="Sample 1" data-url="https://via.placeholder.com/150?text=Sample+1">
+                        <p>Sample 1</p>
+                    </div>
+                    <div class="test-image" draggable="true">
+                        <img src="../static/images/ayushi.jpg" alt="Sample 2" data-url="https://via.placeholder.com/150?text=Sample+2">
+                        <p>Sample 2</p>
+                    </div>
+                    <div class="test-image" draggable="true">
+                        <img src="../static/images/shivam.jpg" alt="Sample 3" data-url="https://via.placeholder.com/150?text=Sample+3">
+                        <p>Sample 3</p>
+                    </div>
+                    <div class="test-image" draggable="true">
+                        <img src="../static/images/sanjeev.jpg" alt="Sample 4" data-url="https://via.placeholder.com/150?text=Sample+4">
+                        <p>Sample 4</p>
+                    </div>
+                    <div class="test-image" draggable="true">
+                        <img src="../static/images/pradip.jpg" alt="Sample 5" data-url="https://via.placeholder.com/150?text=Sample+5">
+                        <p>Sample 5</p>
+                    </div>
+                </div>
+                <p class="or-divider">or</p>
+                <h3>Choose photo from your computer</h3>
+            </div>
+            
             <form id="imageForm">
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-placeholder" id="uploadPlaceholder">
@@ -97,8 +126,9 @@
         const spinner = document.getElementById('spinner');
         const form = document.getElementById('imageForm');
         const results = document.getElementById('results');
+        const testImages = document.querySelectorAll('.test-image img');
         
-        // Handle drag and drop
+        // Handle drag and drop for upload area
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.classList.add('dragover');
@@ -120,6 +150,68 @@
         
         // Handle file selection via click
         fileInput.addEventListener('change', handleFileSelect);
+        
+        // Handle test image drag and drop
+        testImages.forEach(img => {
+            img.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', this.getAttribute('data-url'));
+            });
+        });
+        
+        uploadArea.addEventListener('dragover', function(e) {
+            if (e.dataTransfer.types.includes('text/plain')) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover-test');
+            }
+        });
+        
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.classList.remove('dragover-test');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            if (e.dataTransfer.types.includes('text/plain')) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover-test');
+                
+                const imageUrl = e.dataTransfer.getData('text/plain');
+                previewImage.src = imageUrl;
+                uploadPlaceholder.style.display = 'none';
+                imagePreview.style.display = 'block';
+                submitBtn.disabled = false;
+                
+                // Create a file object from the test image
+                fetch(imageUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], 'test-image.jpg', { type: 'image/jpeg' });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+                    });
+            }
+        });
+        
+        // Handle test image click
+        testImages.forEach(img => {
+            img.parentElement.addEventListener('click', function() {
+                const imageUrl = img.getAttribute('data-url');
+                previewImage.src = imageUrl;
+                uploadPlaceholder.style.display = 'none';
+                imagePreview.style.display = 'block';
+                submitBtn.disabled = false;
+                
+                // Create a file object from the test image
+                fetch(imageUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], 'test-image.jpg', { type: 'image/jpeg' });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+                    });
+            });
+        });
         
         // Handle file selection
         function handleFileSelect() {
@@ -256,8 +348,8 @@
             padding: 2.5rem;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            max-width: 500px;
             width: 100%;
+            max-width: 1000px; /* Increased from 500px */
             text-align: center;
         }
         
@@ -274,15 +366,89 @@
             font-size: 0.95rem;
         }
         
+        /* Test Images Section */
+        .test-images-section {
+            margin-bottom: 2rem;
+        }
+        
+        .test-images-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .test-images-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .test-image {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .test-image:hover {
+            transform: translateY(-3px);
+        }
+        
+        .test-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .test-image:hover img {
+            border-color: #3498db;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+        
+        .test-image p {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .or-divider {
+            position: relative;
+            color: #95a5a6;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .or-divider:before,
+        .or-divider:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        
+        .or-divider:before {
+            left: 0;
+        }
+        
+        .or-divider:after {
+            right: 0;
+        }
+        
         /* Upload Area */
         .upload-area {
             position: relative;
             border: 2px dashed #bdc3c7;
             border-radius: 12px;
-            padding: 2rem;
+            padding: 2.5rem; /* Increased padding */
             margin-bottom: 1.5rem;
             transition: all 0.3s ease;
             cursor: pointer;
+            min-height: 200px; /* Minimum height */
         }
         
         .upload-area:hover {
@@ -294,12 +460,18 @@
             background-color: rgba(52, 152, 219, 0.05);
         }
         
+        .upload-area.dragover-test {
+            border-color: #2ecc71;
+            background-color: rgba(46, 204, 113, 0.05);
+        }
+        
         .upload-placeholder {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: #7f8c8d;
+            height: 100%;
         }
         
         .upload-icon {
@@ -334,12 +506,12 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-height: 300px;
+            max-height: 100%; /* Increased max height */
         }
         
         #previewImage {
             width: 100%;
-            height: auto;
+            height: 100%;
             display: block;
         }
         
@@ -456,7 +628,11 @@
         }
         
         /* Responsive Design */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .test-images-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
             .career-form {
                 padding: 1.5rem;
             }
@@ -469,9 +645,13 @@
                 padding: 1.5rem;
             }
         }
+        
+        @media (max-width: 480px) {
+            .test-images-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
-    
-    
 
       <div class="footer">
         <div class="footer-top">

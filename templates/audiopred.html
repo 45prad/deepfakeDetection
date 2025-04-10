@@ -50,61 +50,89 @@
     
     <div class="career">
         <div class="career-form">
+            <h1>Audio Deepfake Detection</h1>
+            <p class="subtitle">Upload an audio file to detect AI-generated voices</p>
             
-                <h1>Audio Deepfake Detection</h1>
-                <p class="subtitle">Upload an audio file to detect AI-generated voices</p>
-            
-            
-           
-                <form id="audioForm">
-                    <div class="upload-section">
-                        <div class="upload-area" id="uploadArea">
-                            <div class="upload-placeholder" id="uploadPlaceholder">
-                                <i class="upload-icon">🎵</i>
-                                <p>Drag & drop your audio here or click to browse</p>
-                                <p class="small">Supports MP3, WAV (Max 10MB)</p>
-                            </div>
-                            <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
-                        </div>
+            <!-- Test Audio Samples Section -->
+            <div class="test-audio-section">
+                <h3>Try out test audio samples</h3>
+                <div class="test-audio-grid">
+                    <div class="test-audio" draggable="true" data-url="../static/audios/audio1.aac">
+                        <i class="audio-icon">🔊</i>
+                        <p>Sample Voice 1</p>
+                    </div>
+                    <div class="test-audio" draggable="true" data-url="../static/audios/audio2.aac">
+                        <i class="audio-icon">🔊</i>
+                        <p>Sample Voice 2</p>
                         
-                        <div class="audio-preview" id="audioPreview">
-                            <div class="audio-controls">
-                                <button type="button" class="play-btn" id="playBtn">▶</button>
-                                <div class="progress-container">
-                                    <div class="progress-bar" id="progressBar"></div>
-                                </div>
-                                <span class="time" id="currentTime">0:00</span>
-                            </div>
-                            <div class="audio-info">
-                                <span id="audioName"></span>
-                                <span id="audioDuration"></span>
-                            </div>
-                            <button type="button" class="clear-btn" id="clearBtn">×</button>
-                        </div>
                     </div>
-                    
-                    <button type="submit" class="submit-btn" id="submitBtn" disabled>
-                        <span class="btn-text">Analyze Audio</span>
-                        <span class="spinner hidden" id="spinner"></span>
-                    </button>
-                </form>
-    
-                <div class="results" id="results">
-                    <h2>Analysis Results</h2>
-                    <div class="result-item">
-                        <span class="result-label">Prediction:</span>
-                        <span class="result-value" id="result">-</span>
+                    <div class="test-audio" draggable="true" data-url="../static/audios/audio3.aac">
+                        <i class="audio-icon">🔊</i>
+                        <p>Sample Voice 3</p>
+                        
                     </div>
-                    <div class="result-item">
-                        <span class="result-label">Confidence:</span>
-                        <span class="result-value" id="confidence">-</span>
+                    <div class="test-audio" draggable="true" data-url="../static/audios/audio2.aac">
+                        <i class="audio-icon">🔊</i>
+                        <p>Sample Voice 4</p>
                     </div>
-                    <div class="result-item">
-                        <span class="result-label">Details:</span>
-                        <span class="result-value" id="details">-</span>
+                    <div class="test-audio" draggable="true" data-url=="../static/audios/audio2.aac">
+                        <i class="audio-icon">🔊</i>
+                        <p>Sample Voice 5</p>
+                       
                     </div>
                 </div>
+                <p class="or-divider">or</p>
+                <h3>Upload your own audio file</h3>
+            </div>
             
+            <form id="audioForm">
+                <div class="upload-section">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <i class="upload-icon">🎵</i>
+                            <p>Drag & drop your audio here or click to browse</p>
+                            <p class="small">Supports MP3, WAV (Max 10MB)</p>
+                        </div>
+                        <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+                    </div>
+                    
+                    <div class="audio-preview" id="audioPreview">
+                        <div class="audio-controls">
+                            <button type="button" class="play-btn" id="playBtn">▶</button>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="progressBar"></div>
+                            </div>
+                            <span class="time" id="currentTime">0:00</span>
+                        </div>
+                        <div class="audio-info">
+                            <span id="audioName"></span>
+                            <span id="audioDuration"></span>
+                        </div>
+                        <button type="button" class="clear-btn" id="clearBtn">×</button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                    <span class="btn-text">Analyze Audio</span>
+                    <span class="spinner hidden" id="spinner"></span>
+                </button>
+            </form>
+    
+            <div class="results" id="results">
+                <h2>Analysis Results</h2>
+                <div class="result-item">
+                    <span class="result-label">Prediction:</span>
+                    <span class="result-value" id="result">-</span>
+                </div>
+                <div class="result-item">
+                    
+                    <span class="result-value" id="confidence">-</span>
+                </div>
+                <div class="result-item">
+            
+                    <span class="result-value" id="details">-</span>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -124,11 +152,12 @@
         const spinner = document.getElementById('spinner');
         const form = document.getElementById('audioForm');
         const results = document.getElementById('results');
+        const testAudios = document.querySelectorAll('.test-audio');
         
         let audioElement = new Audio();
         let isPlaying = false;
         
-        // Handle drag and drop
+        // Handle drag and drop for upload area
         uploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadArea.classList.add('dragover');
@@ -151,6 +180,94 @@
         // Handle file selection via click
         fileInput.addEventListener('change', handleFileSelect);
         
+        // Handle test audio drag and drop
+        testAudios.forEach(audio => {
+            audio.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', this.getAttribute('data-url'));
+                e.dataTransfer.setData('audio-name', this.querySelector('p').textContent);
+                e.dataTransfer.setData('audio-duration', this.querySelector('.audio-duration').textContent);
+            });
+        });
+        
+        uploadArea.addEventListener('dragover', function(e) {
+            if (e.dataTransfer.types.includes('text/plain')) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover-test');
+            }
+        });
+        
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.classList.remove('dragover-test');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            if (e.dataTransfer.types.includes('text/plain')) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover-test');
+                
+                const audioUrl = e.dataTransfer.getData('text/plain');
+                const name = e.dataTransfer.getData('audio-name');
+                const duration = e.dataTransfer.getData('audio-duration');
+                
+                // Display test audio info
+                audioName.textContent = name;
+                audioDuration.textContent = duration;
+                currentTime.textContent = '0:00';
+                progressBar.style.width = '0%';
+                
+                uploadPlaceholder.style.display = 'none';
+                audioPreview.style.display = 'block';
+                submitBtn.disabled = false;
+                
+                // Create a file object from the test audio
+                fetch(audioUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], `${name}.mp3`, { type: 'audio/mp3' });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+                        
+                        // Set up audio element
+                        audioElement.src = URL.createObjectURL(file);
+                        setupAudioListeners();
+                    });
+            }
+        });
+        
+        // Handle test audio click
+        testAudios.forEach(audio => {
+            audio.addEventListener('click', function() {
+                const audioUrl = this.getAttribute('data-url');
+                const name = this.querySelector('p').textContent;
+                const duration = this.querySelector('.audio-duration').textContent;
+                
+                // Display test audio info
+                audioName.textContent = name;
+                audioDuration.textContent = duration;
+                currentTime.textContent = '0:00';
+                progressBar.style.width = '0%';
+                
+                uploadPlaceholder.style.display = 'none';
+                audioPreview.style.display = 'block';
+                submitBtn.disabled = false;
+                
+                // Create a file object from the test audio
+                fetch(audioUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], `${name}.mp3`, { type: 'audio/mp3' });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+                        
+                        // Set up audio element
+                        audioElement.src = URL.createObjectURL(file);
+                        setupAudioListeners();
+                    });
+            });
+        });
+        
         // Handle file selection
         function handleFileSelect() {
             const file = fileInput.files[0];
@@ -159,36 +276,37 @@
                 // Check file type and size
                 const maxSize = 10 * 1024 * 1024; // 10MB
                 
-               
-                
                 if (file.size > maxSize) {
                     alert('File size exceeds 10MB limit. Please choose a smaller audio file.');
                     return;
                 }
                 
                 // Preview audio
-                const fileURL = URL.createObjectURL(file);
-                audioElement.src = fileURL;
-                
-                audioElement.addEventListener('loadedmetadata', function() {
-                    audioName.textContent = file.name.length > 20 
-                        ? file.name.substring(0, 17) + '...' 
-                        : file.name;
-                    
-                    const duration = formatTime(audioElement.duration);
-                    audioDuration.textContent = duration;
-                    
-                    uploadPlaceholder.style.display = 'none';
-                    audioPreview.style.display = 'block';
-                    submitBtn.disabled = false;
-                });
-                
-                audioElement.addEventListener('timeupdate', updateProgress);
-                audioElement.addEventListener('ended', function() {
-                    playBtn.textContent = '▶';
-                    isPlaying = false;
-                });
+                audioElement.src = URL.createObjectURL(file);
+                setupAudioListeners();
             }
+        }
+        
+        function setupAudioListeners() {
+            audioElement.addEventListener('loadedmetadata', function() {
+                const file = fileInput.files[0];
+                audioName.textContent = file.name.length > 20 
+                    ? file.name.substring(0, 17) + '...' 
+                    : file.name;
+                
+                const duration = formatTime(audioElement.duration);
+                audioDuration.textContent = duration;
+                
+                uploadPlaceholder.style.display = 'none';
+                audioPreview.style.display = 'block';
+                submitBtn.disabled = false;
+            });
+            
+            audioElement.addEventListener('timeupdate', updateProgress);
+            audioElement.addEventListener('ended', function() {
+                playBtn.textContent = '▶';
+                isPlaying = false;
+            });
         }
         
         // Play/Pause button
@@ -272,7 +390,6 @@
                 } else {
                     document.getElementById('result').innerText = data.prediction;
                     
-                    
                     // Add appropriate class based on prediction
                     const resultElement = document.getElementById('result');
                     resultElement.className = 'result-value';
@@ -297,8 +414,6 @@
         
         function resetResults() {
             document.getElementById('result').innerText = '-';
-            document.getElementById('confidence').innerText = '-';
-            document.getElementById('details').innerText = '-';
             document.getElementById('result').className = 'result-value';
             results.style.display = 'none';
         }
@@ -319,6 +434,7 @@
             color: #333;
             line-height: 1.6;
         }
+        
         /* Container Styling */
         .career {
             display: flex;
@@ -333,8 +449,8 @@
             padding: 2.5rem;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            max-width: 500px;
             width: 100%;
+            max-width: 700px; /* Increased width */
             text-align: center;
         }
         
@@ -344,21 +460,90 @@
             color: #2c3e50;
             font-weight: 700;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .header h1 {
-            font-size: 2rem;
-            color: #2c3e50;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
         
         .subtitle {
             color: #7f8c8d;
+            margin-bottom: 2rem;
             font-size: 0.95rem;
+        }
+        
+        /* Test Audio Section */
+        .test-audio-section {
+            margin-bottom: 2rem;
+        }
+        
+        .test-audio-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .test-audio-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .test-audio {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            padding: 0.8rem 0.5rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .test-audio:hover {
+            background: #e8f4f8;
+            border-color: #3498db;
+            transform: translateY(-3px);
+        }
+        
+        .audio-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .test-audio p {
+            font-size: 0.8rem;
+            color: #2c3e50;
+            margin-bottom: 0.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .audio-duration {
+            font-size: 0.7rem;
+            color: #7f8c8d;
+        }
+        
+        .or-divider {
+            position: relative;
+            color: #95a5a6;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .or-divider:before,
+        .or-divider:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        
+        .or-divider:before {
+            left: 0;
+        }
+        
+        .or-divider:after {
+            right: 0;
         }
         
         /* Upload Section */
@@ -370,10 +555,11 @@
             position: relative;
             border: 2px dashed #bdc3c7;
             border-radius: 12px;
-            padding: 2rem;
+            padding: 2.5rem; /* Increased padding */
             transition: all 0.3s ease;
             cursor: pointer;
             margin-bottom: 1rem;
+            min-height: 180px; /* Minimum height */
         }
         
         .upload-area:hover {
@@ -385,12 +571,18 @@
             background-color: rgba(155, 89, 182, 0.05);
         }
         
+        .upload-area.dragover-test {
+            border-color: #3498db;
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
         .upload-placeholder {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: #7f8c8d;
+            height: 100%;
         }
         
         .upload-icon {
@@ -423,25 +615,25 @@
             position: relative;
             border-radius: 12px;
             background: #f8f9fa;
-            padding: 1rem;
+            padding: 1.2rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
         
         .audio-controls {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 0.5rem;
+            gap: 12px;
+            margin-bottom: 0.8rem;
         }
         
         .play-btn {
             background: #9b59b6;
             color: white;
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -456,39 +648,40 @@
         
         .progress-container {
             flex-grow: 1;
-            height: 6px;
+            height: 8px;
             background: #e0e0e0;
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
         }
         
         .progress-bar {
             height: 100%;
             background: #9b59b6;
-            border-radius: 3px;
+            border-radius: 4px;
             width: 0%;
+            transition: width 0.1s linear;
         }
         
         .time {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #7f8c8d;
-            min-width: 40px;
+            min-width: 45px;
             text-align: right;
         }
         
         .audio-info {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #7f8c8d;
         }
         
         .clear-btn {
             position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 24px;
-            height: 24px;
+            top: 8px;
+            right: 8px;
+            width: 26px;
+            height: 26px;
             background: rgba(0, 0, 0, 0.6);
             color: white;
             border: none;
@@ -511,7 +704,7 @@
             background-color: #9b59b6;
             color: white;
             border: none;
-            padding: 0.9rem 2rem;
+            padding: 1rem 2rem;
             border-radius: 8px;
             font-size: 1rem;
             font-weight: 600;
@@ -598,23 +791,34 @@
         }
         
         /* Responsive Design */
-        @media (max-width: 600px) {
-            .app-container {
-                padding: 1.5rem;
+        @media (max-width: 768px) {
+            .test-audio-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
             
-            .header h1 {
-                font-size: 1.6rem;
+            .career-form {
+                padding: 1.8rem;
             }
             
             .upload-area {
+                padding: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .test-audio-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .career-form {
                 padding: 1.5rem;
+            }
+            
+            .career-form h1 {
+                font-size: 1.6rem;
             }
         }
     </style>
-    
-    
-
       <div class="footer">
         <div class="footer-top">
             <div class="container">
