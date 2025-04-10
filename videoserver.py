@@ -85,7 +85,7 @@ def predict_video(video_path, threshold=0.35):
 def index():
     return render_template('videopred.html')
 
-@app.route('/predict_video', methods=['POST'])
+@app.route('/predict', methods=['POST'])
 def predict_video_api():
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
@@ -101,4 +101,4 @@ def predict_video_api():
     return jsonify({'prediction': prediction})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='127.0.0.1', port=8080, debug=True)

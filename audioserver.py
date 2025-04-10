@@ -15,7 +15,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 
 # Load the LSTM model
-model = load_model(r'9K_lstm_features.h5')
+model = load_model(r'new_lstm_model.h5')
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
 # Function to extract MFCC features
@@ -60,4 +60,4 @@ def predict():
     return jsonify({'prediction': result})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='127.0.0.1', port=8081, debug=True)

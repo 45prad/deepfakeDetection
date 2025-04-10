@@ -48,68 +48,45 @@
     </section>
     <div class="career">
         <div class="career-form">
-            <div class="header">
                 <h1>Video Deepfake Detection</h1>
                 <p class="subtitle">Upload a video to detect AI-generated content</p>
-            </div>
             
-                <form id="videoForm">
-                    <div class="upload-section">
-                        <div class="upload-area" id="uploadArea">
-                            <div class="upload-placeholder" id="uploadPlaceholder">
-                                <i class="upload-icon">🎬</i>
-                                <p>Drag & drop your video here or click to browse</p>
-                                <p class="small">Supports MP4, MOV (Max 50MB)</p>
-                            </div>
-                            <input type="file" id="videoFile" name="videoFile" accept="video/*" required>
+            <form id="videoForm">
+                
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <i class="upload-icon">🎬</i>
+                            <p>Drag & drop your video here or click to browse</p>
+                            <p class="small">Supports MP4, MOV (Max 50MB)</p>
                         </div>
-                        
-                        <div class="video-preview" id="videoPreview">
+                        <input type="file" id="videoFile" name="videoFile" accept="video/*" required>
+                    </div>
+                    
+                    <div class="video-preview" id="videoPreview">
+                        <div id="previewContainer">
                             <video id="previewVideo" controls></video>
-                            <div class="video-info">
-                                <span id="videoName"></span>
-                                <span id="videoDuration"></span>
+                            <div class="unsupported-message hidden" id="unsupportedMessage">
+                                <i class="warning-icon">⚠️</i>
+                                <p>Preview not available</p>
+                                <p class="small">The video can still be analyzed</p>
                             </div>
-                            <button type="button" class="clear-btn" id="clearBtn">×</button>
                         </div>
+                        <div class="video-info">
+                            <span id="videoName"></span>
+                            <span id="videoDuration"></span>
+                        </div>
+                        <button type="button" class="clear-btn" id="clearBtn">×</button>
                     </div>
-                    
-                    
-                    <button type="submit" class="submit-btn" id="submitBtn" disabled>
-                        <span class="btn-text">Analyze Video</span>
-                        <span class="spinner hidden" id="spinner"></span>
-                    </button>
-                </form>
+                
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                    <span class="btn-text">Analyze Video</span>
+                    <span class="spinner hidden" id="spinner"></span>
+                </button>
+            </form>
     
-                <div class="results" id="results">
-                    <h2>Analysis Results</h2>
-                    <div class="result-grid">
-                        <div class="result-item">
-                            <span class="result-label">Prediction:</span>
-                            <span class="result-value" id="result">-</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Confidence:</span>
-                            <span class="result-value" id="confidence">-</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Fake Regions:</span>
-                            <span class="result-value" id="regions">-</span>
-                        </div>
-                        <div class="result-item full-width">
-                            <span class="result-label">Analysis Details:</span>
-                            <span class="result-value" id="details">-</span>
-                        </div>
-                    </div>
-                    
-                    <div class="visual-results hidden" id="visualResults">
-                        <h3>Detection Heatmap</h3>
-                        <div class="heatmap-container">
-                            <img id="heatmapImage" src="#" alt="Detection heatmap">
-                        </div>
-                    </div>
-                </div>
-            
+            <div class="results" id="results">
+                <div class="prediction-result" id="predictionResult">-</div>
+            </div>
         </div>
     </div>
     
@@ -120,6 +97,8 @@
         const uploadPlaceholder = document.getElementById('uploadPlaceholder');
         const videoPreview = document.getElementById('videoPreview');
         const previewVideo = document.getElementById('previewVideo');
+        const previewContainer = document.getElementById('previewContainer');
+        const unsupportedMessage = document.getElementById('unsupportedMessage');
         const videoName = document.getElementById('videoName');
         const videoDuration = document.getElementById('videoDuration');
         const clearBtn = document.getElementById('clearBtn');
@@ -127,8 +106,7 @@
         const spinner = document.getElementById('spinner');
         const form = document.getElementById('videoForm');
         const results = document.getElementById('results');
-        const visualResults = document.getElementById('visualResults');
-        const heatmapImage = document.getElementById('heatmapImage');
+        const predictionResult = document.getElementById('predictionResult');
         
         // Handle drag and drop
         uploadArea.addEventListener('dragover', (e) => {
@@ -159,35 +137,53 @@
             
             if (file) {
                 // Check file type and size
-                const validTypes = ['video/mp4', 'video/quicktime', 'video/x-m4v'];
+                const validTypes = ['video/mp4', 'video/quicktime', 'video/MP4', 'video/x-m4v'];
                 const maxSize = 50 * 1024 * 1024; // 50MB
                 
-                if (!validTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|m4v)$/i)) {
-                    alert('Please upload a valid video file (MP4 or MOV).');
-                    return;
-                }
                 
                 if (file.size > maxSize) {
                     alert('File size exceeds 50MB limit. Please choose a smaller video file.');
                     return;
                 }
                 
-                // Preview video
+                // Show file info regardless of preview availability
+                videoName.textContent = file.name.length > 25 
+                    ? file.name.substring(0, 22) + '...' 
+                    : file.name;
+                
+                // Try to create preview
                 const fileURL = URL.createObjectURL(file);
                 previewVideo.src = fileURL;
                 
+                // Check if video can be played
+                previewVideo.onerror = function() {
+                    // Video preview failed
+                    previewVideo.classList.add('hidden');
+                    unsupportedMessage.classList.remove('hidden');
+                    videoDuration.textContent = 'Unknown duration';
+                    enableSubmission();
+                };
+                
                 previewVideo.addEventListener('loadedmetadata', function() {
-                    videoName.textContent = file.name.length > 25 
-                        ? file.name.substring(0, 22) + '...' 
-                        : file.name;
-                    
+                    // Video metadata loaded successfully
                     const duration = formatTime(previewVideo.duration);
                     videoDuration.textContent = duration;
-                    
+                    enableSubmission();
+                });
+                
+                previewVideo.addEventListener('error', function() {
+                    // Video failed to load
+                    previewVideo.classList.add('hidden');
+                    unsupportedMessage.classList.remove('hidden');
+                    videoDuration.textContent = 'Unknown duration';
+                    enableSubmission();
+                });
+                
+                function enableSubmission() {
                     uploadPlaceholder.style.display = 'none';
                     videoPreview.style.display = 'block';
                     submitBtn.disabled = false;
-                });
+                }
             }
         }
         
@@ -205,6 +201,8 @@
             uploadPlaceholder.style.display = 'flex';
             videoPreview.style.display = 'none';
             submitBtn.disabled = true;
+            previewVideo.classList.remove('hidden');
+            unsupportedMessage.classList.add('hidden');
             resetResults();
         });
         
@@ -225,7 +223,7 @@
             formData.append('file', file);
             
             // Sending request to Flask backend
-            fetch('http://127.0.0.1:5000/predict', {
+            fetch('http://127.0.0.1:8080/predict', {
                 method: 'POST',
                 body: formData,
             })
@@ -238,36 +236,20 @@
             .then(data => {
                 console.log("API Response:", data);  
                 if (data.error) {
-                    document.getElementById('result').innerText = 'Error';
-                    document.getElementById('confidence').innerText = '-';
-                    document.getElementById('regions').innerText = '-';
-                    document.getElementById('details').innerText = data.error;
+                    predictionResult.innerText = 'Error';
                 } else {
-                    document.getElementById('result').innerText = data.prediction;
-                    document.getElementById('confidence').innerText = `${data.confidence}%`;
-                    document.getElementById('regions').innerText = data.regions || 'Not specified';
-                    document.getElementById('details').innerText = data.details || 'No additional details';
+                    predictionResult.innerText = data.prediction;
                     
                     // Add appropriate class based on prediction
-                    const resultElement = document.getElementById('result');
-                    resultElement.className = 'result-value';
-                    resultElement.classList.add(data.prediction.toLowerCase());
-                    
-                    // Show heatmap if available
-                    if (data.heatmap) {
-                        heatmapImage.src = data.heatmap;
-                        visualResults.classList.remove('hidden');
-                    }
+                    predictionResult.className = 'prediction-result';
+                    predictionResult.classList.add(data.prediction.toLowerCase());
                 }
                 
-                results.style.display = 'block';
+                results.style.display = 'flex';
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('result').innerText = 'Error';
-                document.getElementById('confidence').innerText = '-';
-                document.getElementById('regions').innerText = '-';
-                document.getElementById('details').innerText = error.message;
+                predictionResult.innerText = 'Error';
             })
             .finally(() => {
                 // Reset button state
@@ -278,343 +260,281 @@
         });
         
         function resetResults() {
-            document.getElementById('result').innerText = '-';
-            document.getElementById('confidence').innerText = '-';
-            document.getElementById('regions').innerText = '-';
-            document.getElementById('details').innerText = '-';
-            document.getElementById('result').className = 'result-value';
+            predictionResult.innerText = '-';
             results.style.display = 'none';
-            visualResults.classList.add('hidden');
         }
     });
     </script>
     
     <style>
-        /* Base Styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #f8f9fa;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        /* Container Styling */
-        .career {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
+    /* Base Styles */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+        background-color: #f8f9fa;
+        color: #333;
+        line-height: 1.6;
+    }
+    
+    /* Container Styling */
+    .career {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    .career-form {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .career-form h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+        font-weight: 700;
+    }
+    
+    .subtitle {
+        color: #7f8c8d;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+    
+    /* Upload Section */
+    .upload-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .upload-area {
+        position: relative;
+        border: 2px dashed #bdc3c7;
+        border-radius: 12px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-bottom: 1rem;
+    }
+    
+    .upload-area:hover {
+        border-color: #e74c3c;
+    }
+    
+    .upload-area.dragover {
+        border-color: #e74c3c;
+        background-color: rgba(231, 76, 60, 0.05);
+    }
+    
+    .upload-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #7f8c8d;
+    }
+    
+    .upload-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .upload-placeholder p {
+        margin-bottom: 0.5rem;
+    }
+    
+    .small {
+        font-size: 0.8rem;
+        color: #95a5a6;
+    }
+    
+    #videoFile {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    /* Video Preview */
+    .video-preview {
+        display: none;
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+    
+    #previewContainer {
+        position: relative;
+        width: 100%;
+        background: #000;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #previewVideo {
+        width: 100%;
+        display: block;
+    }
+    
+    .unsupported-message {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .warning-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .video-info {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem;
+        background: #f8f9fa;
+        font-size: 0.85rem;
+        color: #7f8c8d;
+    }
+    
+    .clear-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 24px;
+        height: 24px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    
+    .clear-btn:hover {
+        background: rgba(0, 0, 0, 0.8);
+        transform: scale(1.1);
+    }
+    
+    /* Button Styles */
+    .submit-btn {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 0.9rem 2rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .submit-btn:hover {
+        background-color: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+    }
+    
+    .submit-btn:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    /* Spinner */
+    .spinner {
+        width: 18px;
+        height: 18px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Results Section */
+    .results {
+        margin-top: 2rem;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        min-height: 100px;
+    }
+    
+    .prediction-result {
+        font-size: 2rem;
+        font-weight: bold;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .prediction-result.real {
+        color: #27ae60;
+        background-color: rgba(39, 174, 96, 0.1);
+    }
+    
+    .prediction-result.fake {
+        color: #e74c3c;
+        background-color: rgba(231, 76, 60, 0.1);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 650px) {
         .career-form {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .career-form h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-            font-weight: 700;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
+            padding: 1.5rem;
         }
         
         .header h1 {
-            font-size: 2rem;
-            color: #2c3e50;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .subtitle {
-            color: #7f8c8d;
-            font-size: 0.95rem;
-        }
-        
-        /* Upload Section */
-        .upload-section {
-            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
         }
         
         .upload-area {
-            position: relative;
-            border: 2px dashed #bdc3c7;
-            border-radius: 12px;
-            padding: 2rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            margin-bottom: 1rem;
-        }
-        
-        .upload-area:hover {
-            border-color: #e74c3c;
-        }
-        
-        .upload-area.dragover {
-            border-color: #e74c3c;
-            background-color: rgba(231, 76, 60, 0.05);
-        }
-        
-        .upload-placeholder {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #7f8c8d;
-        }
-        
-        .upload-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .upload-placeholder p {
-            margin-bottom: 0.5rem;
-        }
-        
-        .small {
-            font-size: 0.8rem;
-            color: #95a5a6;
-        }
-        
-        #videoFile {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        
-        /* Video Preview */
-        .video-preview {
-            display: none;
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1rem;
-        }
-        
-        #previewVideo {
-            width: 100%;
-            display: block;
-            background: #000;
-        }
-        
-        .video-info {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.8rem;
-            background: #f8f9fa;
-            font-size: 0.85rem;
-            color: #7f8c8d;
-        }
-        
-        .clear-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 24px;
-            height: 24px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 0.9rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        
-        .clear-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
-            transform: scale(1.1);
-        }
-        
-        /* Options */
-        .options {
-            margin-bottom: 1.5rem;
-            padding: 0 0.5rem;
-        }
-        
-        .option-checkbox {
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.8rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: #34495e;
-        }
-        
-        .option-checkbox input {
-            margin-right: 0.5rem;
-        }
-        
-        /* Button Styles */
-        .submit-btn {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 0.9rem 2rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .submit-btn:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
-        }
-        
-        .submit-btn:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        /* Spinner */
-        .spinner {
-            width: 18px;
-            height: 18px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Results Section */
-        .results {
-            margin-top: 2rem;
             padding: 1.5rem;
-            background: #f8f9fa;
-            border-radius: 12px;
-            display: none;
         }
         
-        .results h2 {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            color: #2c3e50;
-            text-align: center;
+        .prediction-result {
+            font-size: 1.5rem;
         }
-        
-        .result-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .result-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .result-item.full-width {
-            grid-column: span 2;
-        }
-        
-        .result-label {
-            font-weight: 600;
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-bottom: 0.3rem;
-        }
-        
-        .result-value {
-            font-weight: 700;
-            word-break: break-word;
-        }
-        
-        .result-value.real {
-            color: #27ae60;
-        }
-        
-        .result-value.fake {
-            color: #e74c3c;
-        }
-        
-        /* Visual Results */
-        .visual-results {
-            margin-top: 1.5rem;
-        }
-        
-        .visual-results h3 {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            color: #2c3e50;
-            text-align: center;
-        }
-        
-        .heatmap-container {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        #heatmapImage {
-            width: 100%;
-            display: block;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 650px) {
-            .app-container {
-                padding: 1.5rem;
-            }
-            
-            .header h1 {
-                font-size: 1.6rem;
-            }
-            
-            .upload-area {
-                padding: 1.5rem;
-            }
-            
-            .result-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .result-item.full-width {
-                grid-column: span 1;
-            }
-        }
+    }
     </style>
     
     
