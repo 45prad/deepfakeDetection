@@ -57,28 +57,23 @@
             <div class="test-audio-section">
                 <h3>Try out test audio samples</h3>
                 <div class="test-audio-grid">
-                    <div class="test-audio" draggable="true" data-url="../static/audios/audio1.aac">
+                    <div class="test-audio" draggable="true" data-url="../static/audios/7.wav">
                         <i class="audio-icon">🔊</i>
-                        <p>Sample Voice 1</p>
+                        <p>Bonafide</p>
                     </div>
-                    <div class="test-audio" draggable="true" data-url="../static/audios/audio2.aac">
+                    <div class="test-audio" draggable="true" data-url="../static/audios/1.wav">
                         <i class="audio-icon">🔊</i>
-                        <p>Sample Voice 2</p>
+                        <p>Spoof</p>
                         
                     </div>
-                    <div class="test-audio" draggable="true" data-url="../static/audios/audio3.aac">
+                    <div class="test-audio" draggable="true" data-url="../static/audios/21.wav">
                         <i class="audio-icon">🔊</i>
-                        <p>Sample Voice 3</p>
+                        <p>Spoof</p>
                         
                     </div>
-                    <div class="test-audio" draggable="true" data-url="../static/audios/audio2.aac">
+                    <div class="test-audio" draggable="true" data-url="../static/audios/27.wav">
                         <i class="audio-icon">🔊</i>
-                        <p>Sample Voice 4</p>
-                    </div>
-                    <div class="test-audio" draggable="true" data-url=="../static/audios/audio2.aac">
-                        <i class="audio-icon">🔊</i>
-                        <p>Sample Voice 5</p>
-                       
+                        <p>Bonafide</p>
                     </div>
                 </div>
                 <p class="or-divider">or</p>
@@ -118,19 +113,20 @@
                 </button>
             </form>
     
-            <div class="results" id="results">
-                <h2>Analysis Results</h2>
-                <div class="result-item">
-                    <span class="result-label">Prediction:</span>
-                    <span class="result-value" id="result">-</span>
+                <div class="results" id="results">
+                    <h2>Analysis Results</h2>
+                    <div class="result-item">
+                        <span class="result-label">Prediction:</span>
+                        <span class="result-value" id="result">-</span>
+                    </div>
                 </div>
                 <div class="result-item">
                     
-                    <span class="result-value" id="confidence">-</span>
+                   
                 </div>
                 <div class="result-item">
             
-                    <span class="result-value" id="details">-</span>
+                    
                 </div>
             </div>
         </div>
@@ -356,61 +352,57 @@
         });
         
         // Form submission
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+      // Form submission
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const file = fileInput.files[0];
+    if (!file) return;
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    spinner.classList.remove('hidden');
+    document.querySelector('.btn-text').textContent = 'Analyzing...';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    fetch('http://127.0.0.1:8081/predict', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultElement = document.getElementById('result');
+        
+        if (data.error) {
+            resultElement.innerText = 'Error: ' + data.error;
+            resultElement.className = 'result-value error';
+        } else {
+            resultElement.innerText = data.prediction;
+            resultElement.className = 'result-value';
             
-            const file = fileInput.files[0];
-            if (!file) return;
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            spinner.classList.remove('hidden');
-            document.querySelector('.btn-text').textContent = 'Analyzing...';
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            // Sending request to Flask backend
-            fetch('http://127.0.0.1:8081/predict', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("API Response:", data);  
-                if (data.error) {
-                    document.getElementById('result').innerText = 'Error';
-                    document.getElementById('confidence').innerText = '-';
-                    document.getElementById('details').innerText = data.error;
-                } else {
-                    document.getElementById('result').innerText = data.prediction;
-                    
-                    // Add appropriate class based on prediction
-                    const resultElement = document.getElementById('result');
-                    resultElement.className = 'result-value';
-                    resultElement.classList.add(data.prediction.toLowerCase());
-                }
-                
-                results.style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('result').innerText = 'Error';
-                document.getElementById('confidence').innerText = '-';
-                document.getElementById('details').innerText = error.message;
-            })
-            .finally(() => {
-                // Reset button state
-                submitBtn.disabled = false;
-                spinner.classList.add('hidden');
-                document.querySelector('.btn-text').textContent = 'Analyze Audio';
-            });
-        });
+            // Add class based on prediction
+            if (data.prediction.includes("Bonafide")) {
+                resultElement.classList.add('real');
+            } else {
+                resultElement.classList.add('fake');
+            }
+        }
+        
+        results.style.display = 'block';
+    })
+    .catch(error => {
+        document.getElementById('result').innerText = 'Error occurred';
+        document.getElementById('result').className = 'result-value error';
+        results.style.display = 'block';
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        spinner.classList.add('hidden');
+        document.querySelector('.btn-text').textContent = 'Analyze Audio';
+    });
+});
         
         function resetResults() {
             document.getElementById('result').innerText = '-';
@@ -480,7 +472,7 @@
         
         .test-audio-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin-bottom: 1.5rem;
         }
@@ -819,49 +811,42 @@
             }
         }
     </style>
-      <div class="footer">
+    <div class="footer">
         <div class="footer-top">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 footer-links">
-                        <h4>About Us</h4>
+                        <h4>About </h4>
                         <ul>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#home">Home</a></li>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#about">About us</a></li>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#service">Our services</a></li>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#home">Terms & condition</a></li>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#home">Privacy policy</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="#">Home</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="#about">About us</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="#service">Our services</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="#">Terms & condition</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="#">Privacy policy</a></li>
                         </ul>
                     </div>
   
                     <div class="col-lg-3 col-md-6 footer-links">
                         <h4>Useful Links</h4>
                         <ul>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#portfolio">Portfolio</a></li>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#team">Team</a></li>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="careers.html">Career</a></li>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#contact">Contact</a></li>
-                            <li><i class="ion-ios-arrow-forward"></i> <a href="index.html#faq">FAQ</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="#portfolio">technologies</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="#team">Team</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="#contact">Contact</a></li>
+                            <li><i class="ion-ios-arrow-forward"></i> <a href="#faq">FAQ</a></li>
                         </ul>
                     </div>
   
                     <div class="col-lg-3 col-md-6 footer-contact" style="font-size: 1.5rem;">
                         <h4>Contact Us</h4>
                         <p>
-                            1300  Center Avenue<br>
-                            Fresno, California<br>
-                            United States <br>
-                            <strong>Phone:</strong> +123-456-7890<br>
-                            <strong>Email:</strong> info@example.com<br>
+                            vidyalankar Institute of technology<br>
+                            wadala mumbai<br>
+                            maharashtra <br>
+                            <strong>Phone:</strong> 8767488645<br>
+                            <strong>Email:</strong> pradipgarhwal183@gmail.com<br>
                         </p>
   
-                        <div class="social-links">
-                            <a href="https://www.facebook.com/"><i class="ion-logo-facebook"></i></a>
-                            <a href="https://twitter.com/login?lang=en"><i class="ion-logo-twitter"></i></a>
-                            <a href="https://www.linkedin.com/"><i class="ion-logo-linkedin"></i></a>
-                            <a href="https://www.instagram.com/"><i class="ion-logo-instagram"></i></a>
-                            <a href="https://accounts.google.com/servicelogin/signinchooser?flowName=GlifWebSignIn&flowEntry=ServiceLogin"><i class="ion-logo-googleplus"></i></a>
-                        </div>
+                   
   
                     </div>
   
@@ -880,7 +865,7 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6 copyright" style="color: #fff; font-size: 1.3rem;">
-                    Copyright &copy; 2021 IT Company Website. All Rights Reserved.
+                    Copyright &copy; Deepfake Detection. All Rights Reserved.
                 </div>
             </div>
         </div>

@@ -2,8 +2,9 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS  # Import CORS
 import tensorflow as tf
 import numpy as np
+import os
 from PIL import Image
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1' 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 

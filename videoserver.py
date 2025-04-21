@@ -8,6 +8,8 @@ from torchvision import transforms, models
 import torch.nn as nn
 from werkzeug.utils import secure_filename
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1' 
+
 app = Flask(__name__, template_folder='templates')
 CORS(app)
 app.config['UPLOAD_FOLDER'] = 'uploads'
