@@ -59,5 +59,9 @@ def upload_file():
     
     return render_template('index.html')  # Serve HTML file for upload form
 
+# if __name__ == '__main__':
+#     app.run(host='127.0.0.1', port=8082, debug=True)
+
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8082, debug=True)
+    port = int(os.environ.get('PORT', 8020))
+    app.run(host='0.0.0.0', port=port)
