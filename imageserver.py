@@ -62,6 +62,9 @@ def upload_file():
 # if __name__ == '__main__':
 #     app.run(host='127.0.0.1', port=8082, debug=True)
 
+# if __name__ == '__main__':
+#     port = int(os.environ.get('PORT', 8020))
+#     app.run(host='0.0.0.0', port=port)
+
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8020))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=8082, debug=True)
